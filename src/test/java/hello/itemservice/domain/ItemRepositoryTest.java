@@ -75,6 +75,15 @@ class ItemRepositoryTest {
         assertThat(findItem.getItemName()).isEqualTo(updateParam.getItemName());
         assertThat(findItem.getPrice()).isEqualTo(updateParam.getPrice());
         assertThat(findItem.getQuantity()).isEqualTo(updateParam.getQuantity());
+
+        //em.update() 같은 메서드를 전혀 호출하지 않았다. 그런데 어떻게 UPDATE SQL이 실행되는 것일까?
+        //JPA는 트랜잭션이 커밋되는 시점에, 변경된 엔티티 객체가 있는지 확인한다. 특정 엔티티 객체가 변경된
+        //경우에는 UPDATE SQL을 실행한다.
+        //JPA가 어떻게 변경된 엔티티 객체를 찾는지 명확하게 이해하려면 영속성 컨텍스트라는 JPA 내부 원리를
+        //이해해야 한다. 이 부분은 JPA 기본편에서 자세히 다룬다. 지금은 트랜잭션 커밋 시점에 JPA가 변경된
+        //엔티티 객체를 찾아서 UPDATE SQL을 수행한다고 이해하면 된다.
+        //테스트의 경우 마지막에 트랜잭션이 롤백되기 때문에 JPA는 UPDATE SQL을 실행하지 않는다.
+        //테스트에서 UPDATE SQL을 확인하려면 @Commit 을 붙이면 확인할 수 있다.
     }
 
     @Test
