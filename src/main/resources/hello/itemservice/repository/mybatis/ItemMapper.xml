@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="hello.itemservice.repository.mybatis.ItemMapper">
+    <!--기본적으로 java Mapper파일 있는 패키지명을 맞춰야한다.-->
+    <!--&gt; XML 파일을 원하는 위치에 두고 싶으면 application.properties 에 다음과 같이 설정하면 된다.
+    > mybatis.mapper-locations=classpath:mapper/**/*.xml
+    > 이렇게 하면 resources/mapper 를 포함한 그 하위 폴더에 있는 XML을 XML 매핑 파일로 인식한다. 이 경우 파일 이름은 자유롭게 설정해도 된다.-->
+
+    <insert id="save" useGeneratedKeys="true" keyProperty="id"> <!-- 데이터 베이스의 키생성 전략이 identity일때, useGeneratedKeys 사용-->
+        insert into ITEM (ITEM_NAME,PRICE,QUANTITY) VALUES (#{itemName},#{price},#{quantity})
+    </insert>
+
+    <update id="update">
+        update ITEM
+        SET ITEM_NAME = #{updateParam.itemName},
+            PRICE = #{updateParam.price},
+            QUANTITY = #{updateParam.quantity}
+        WHERE ID = #{id}
+    </update>
+
+    <select id="findById" resultType="Item">
+        SELECT ID, ITEM_NAME, PRICE, QUANTITY
+        FROM ITEM
+        WHERE ID = #{id}
+    </select>
+
+    <select id="findAll" resultType="Item">
+        SELECT ID, ITEM_NAME, PRICE, QUANTITY
+        FROM ITEM
+         /*안에 있는 if문이 모두 해당 되지 않으면 where절이 생성되지 않는다. if문에 해당되는 최초는 and를 where로 변환해준다.*/
+        <where>
+            <if test="itemName != null and itemName !=''">
+                and ITEM_NAME like concat('%',#{itemName},'%')
+            </if>
+            <!--xml특수문자 해결을 위해 &lt; (<)을 사용. 다른방법은 <![CDATA[ ]]> 사용-->
+            <if test="maxPrice != null">
+                and PRICE &lt;= #{maxPrice}
+            </if>
+        </where>
+    </select>
+</mapper>
